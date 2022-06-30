@@ -4,7 +4,48 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./css/index.css" />
+    <title>lift simulator</title>
   </head>
-  <body></body>
+  <body>
+    <div class="d-flex justify-content-center my-2">
+      <div class="col-10 lift__simulator mb-5">
+        <div class="flex">
+          <div class="col-3 mx-auto">
+            <form action="submit" class="mb-5" id="lift__simulator__form">
+              <div class="form-group">
+                <label for="number__of__floors">Number of floors</label>
+                <input
+                  class="form-control"
+                  id="floor__number"
+                  placeholder="2"
+                  type="number"
+                />
+              </div>
+              <div class="form-group">
+                <label for="number__of__lifts">Number of lifts</label>
+                <input
+                  class="form-control"
+                  id="lift__number"
+                  placeholder="2"
+                  type="number"
+                />
+              </div>
+              <button class="btn btn-primary" id="form__submit">
+                Generate
+              </button>
+            </form>
+          </div>
+        </div>
+        <div id="lift__simulator__building"></div>
+      </div>
+    </div>
+    <script type="module" src="./js/index.js"></script>
+  </body>
 </html>

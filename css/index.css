@@ -1,0 +1,44 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.floor {
+  border-bottom: 1px solid #000;
+  height: 10rem;
+  width: inherit;
+}
+
+.lift__simulator__form {
+}
+.lift__simulator {
+}
+
+.btn-warning,
+.btn-success {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  color: #fff;
+  width: 5rem;
+}
+
+.lift {
+  z-index: 1;
+  height: 8rem;
+  width: 5rem;
+  background-color: rgb(77, 177, 226);
+  position: absolute;
+  bottom: 0;
+  left: 10rem;
+}
