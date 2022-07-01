@@ -14,17 +14,15 @@ building.addEventListener("click", function (event) {
       liftArray
     );
     console.log(lift, sameFloor);
-    const absoluteValue = Math.abs(
-      parseInt(getAttribute("index", target)) -
-        parseInt(getAttribute("floor", lift))
-    );
     const nonAbsoluteValue =
       parseInt(getAttribute("index", target)) -
       parseInt(getAttribute("floor", lift));
+    const absoluteValue = Math.abs(nonAbsoluteValue);
 
     lift.classList.add("busy");
     setTimeout(() => {
-      lift.classList.remove("busy");
+      setAttribute("floor", lift, getAttribute("index", target));
+      openAndCloseLiftDoors(lift);
     }, absoluteValue * 2 * 1000);
 
     if (!sameFloor) {
@@ -39,7 +37,6 @@ building.addEventListener("click", function (event) {
         Math.abs(absoluteValue) * 2
       }s linear`;
       lift.style.transform = `translateY(${`-${addingPixels}px`})`;
-      setAttribute("floor", lift, getAttribute("index", target));
     }
   }
 });
@@ -49,6 +46,23 @@ form.addEventListener("submit", function (event) {
   event.preventDefault();
   buildTheBuilding();
 });
+function openAndCloseLiftDoors(lift) {
+  console.dir(lift.children);
+  const doorLeft = lift.children[0];
+  const doorRight = lift.children[1];
+  doorLeft.style.transition = `transform ${2.5}s linear`;
+  doorLeft.style.transform = `translateX(-30px)`;
+  doorRight.style.transition = `transform ${2.5}s linear`;
+  doorRight.style.transform = `translateX(30px)`;
+
+  setTimeout(() => {
+    lift.classList.remove("busy");
+    doorLeft.style.transition = `transform ${2.5}s linear`;
+    doorLeft.style.transform = `translateX(0px)`;
+    doorRight.style.transition = `transform ${2.5}s linear`;
+    doorRight.style.transform = `translateX(0px)`;
+  }, 2500);
+}
 
 function buildTheBuilding() {
   //clean the previous building
@@ -57,6 +71,8 @@ function buildTheBuilding() {
   //get count of lifts and floors from the form
   const floorsCount = parseInt(document.getElementById("floor__number").value);
   const liftsCount = parseInt(document.getElementById("lift__number").value);
+
+  adjustBuildingWidth(liftsCount);
 
   // get innerHTML for floors and lifts
   const floors = buildFloors(floorsCount);
@@ -87,7 +103,7 @@ function buildFloors(count) {
             <button class="btn btn-warning" floor="${count - i + 1}" index="${
       count - i + 1
     }" id="btn__down__${count - i + 1}">down</button>
-    <p class="position-absolute" style="bottom: 0; right: 0">floor - ${
+    <p class="position-absolute mb-1" style="bottom: 0; left: 0">floor - ${
       count - i + 1
     }</p>
   </div>`;
@@ -106,7 +122,10 @@ function buildLifts(count) {
     lifts += `
     <div class="lift lift_${i}" index="${i}" id="lift" floor="1" style="left:${
       120 * i
-    }px"></div>
+    }px">
+    <div class="door door__left"></div>
+    <div class="door door__right"></div>
+    </div>
   `;
   }
   container.innerHTML = lifts;
@@ -149,4 +168,11 @@ function setAttribute(attr, element, value) {
   if (attr === "floor") {
     element.attributes.floor.nodeValue = value;
   }
+}
+
+function adjustBuildingWidth(liftsCount) {
+  console.log(window.innerWidth);
+  if (window.innerWidth < liftsCount * 120)
+    building.style.width = `${(liftsCount + 1) * 120}px`;
+  else building.style.width = "inherit";
 }
