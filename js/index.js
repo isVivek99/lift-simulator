@@ -1,6 +1,7 @@
 const form = document.getElementById("lift__simulator__form");
 const building = document.getElementById("lift__simulator__building");
 const floorArray = [];
+const liftCallQueue = [];
 
 //button click event listener
 let addingPixels = 0;
@@ -9,35 +10,22 @@ building.addEventListener("click", function (event) {
   const target = event.target;
   if (target.classList.contains("btn")) {
     const liftArray = document.querySelectorAll("#lift");
+
     const { lift, sameFloor } = getLift(
       getAttribute("floor", target),
       liftArray
     );
-    console.log(lift, sameFloor);
-    const nonAbsoluteValue =
-      parseInt(getAttribute("index", target)) -
-      parseInt(getAttribute("floor", lift));
-    const absoluteValue = Math.abs(nonAbsoluteValue);
 
-    lift.classList.add("busy");
-    setTimeout(() => {
-      setAttribute("floor", lift, getAttribute("index", target));
-      openAndCloseLiftDoors(lift);
-    }, absoluteValue * 2 * 1000);
+    //if no lift found then queue the lift calls
 
-    if (!sameFloor) {
-      addingPixels = getLiftsDistanceFromBottom(lift) + nonAbsoluteValue * 160;
-      console.log(
-        "absolutevalue:",
-        nonAbsoluteValue,
-        "adding pxls after addn:",
-        addingPixels
-      );
-      lift.style.transition = `transform ${
-        Math.abs(absoluteValue) * 2
-      }s linear`;
-      lift.style.transform = `translateY(${`-${addingPixels}px`})`;
+    if (lift === undefined) {
+      liftCallQueue.push(getAttribute("floor", target));
+      console.log(liftCallQueue);
+      return;
     }
+
+    console.log(lift, sameFloor);
+    moveLift(lift, sameFloor, target);
   }
 });
 
@@ -56,12 +44,34 @@ function openAndCloseLiftDoors(lift) {
   doorRight.style.transform = `translateX(30px)`;
 
   setTimeout(() => {
-    lift.classList.remove("busy");
     doorLeft.style.transition = `transform ${2.5}s linear`;
     doorLeft.style.transform = `translateX(0px)`;
     doorRight.style.transition = `transform ${2.5}s linear`;
     doorRight.style.transform = `translateX(0px)`;
+    setTimeout(() => {
+      lift.classList.remove("busy");
+    }, 2500);
   }, 2500);
+}
+
+function moveLift(lift, sameFloor, target) {
+  const nonAbsoluteValue =
+    parseInt(getAttribute("index", target)) -
+    parseInt(getAttribute("floor", lift));
+  const absoluteValue = Math.abs(nonAbsoluteValue);
+
+  lift.classList.add("busy");
+  setTimeout(() => {
+    setAttribute("floor", lift, getAttribute("index", target));
+    openAndCloseLiftDoors(lift);
+  }, absoluteValue * 2 * 1000);
+
+  if (!sameFloor) {
+    addingPixels = getLiftsDistanceFromBottom(lift) + nonAbsoluteValue * 160;
+
+    lift.style.transition = `transform ${Math.abs(absoluteValue) * 2}s linear`;
+    lift.style.transform = `translateY(${`-${addingPixels}px`})`;
+  }
 }
 
 function buildTheBuilding() {
@@ -132,14 +142,15 @@ function buildLifts(count) {
 
   return container;
 }
-//get lift
 
+//get lift
 function getLift(floor, liftArr) {
-  // console.log(floor, typeof floor);
   const arr = [...liftArr];
 
   const liftOne = arr.find(
-    (element) => floor === parseInt(element.attributes.floor.nodeValue)
+    (element) =>
+      floor === parseInt(element.attributes.floor.nodeValue) &&
+      !element.classList.contains("busy")
   );
 
   const liftTwo = arr.find((element) => !element.classList.contains("busy"));
@@ -149,7 +160,8 @@ function getLift(floor, liftArr) {
 
   return {
     lift,
-    sameFloor: floor === parseInt(lift.attributes.floor.nodeValue),
+    sameFloor:
+      floor === lift ? parseInt(lift.attributes.floor.nodeValue) : false,
   };
 }
 
@@ -171,8 +183,7 @@ function setAttribute(attr, element, value) {
 }
 
 function adjustBuildingWidth(liftsCount) {
-  console.log(window.innerWidth);
-  if (window.innerWidth < liftsCount * 120)
+  if (window.innerWidth * 0.81 < liftsCount * 120) {
     building.style.width = `${(liftsCount + 1) * 120}px`;
-  else building.style.width = "inherit";
+  } else building.style.width = "inherit";
 }
