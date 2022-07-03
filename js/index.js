@@ -10,6 +10,7 @@ building.addEventListener("click", function (event) {
   const target = event.target;
   if (target.classList.contains("btn")) {
     const liftArray = document.querySelectorAll("#lift");
+    sortByNearbyFloor(liftArray, getAttribute("floor", target));
 
     const { lift, sameFloor } = getLift(
       getAttribute("floor", target),
@@ -19,12 +20,12 @@ building.addEventListener("click", function (event) {
     //if no lift found then queue the lift calls
 
     if (lift === undefined) {
-      liftCallQueue.push(getAttribute("floor", target));
+      liftCallQueue.push(target);
       console.log(liftCallQueue);
       return;
     }
 
-    console.log(lift, sameFloor);
+    // console.log(lift, sameFloor);
     moveLift(lift, sameFloor, target);
   }
 });
@@ -34,8 +35,9 @@ form.addEventListener("submit", function (event) {
   event.preventDefault();
   buildTheBuilding();
 });
+
+//open nd close lift doors and mak lift idle
 function openAndCloseLiftDoors(lift) {
-  console.dir(lift.children);
   const doorLeft = lift.children[0];
   const doorRight = lift.children[1];
   doorLeft.style.transition = `transform ${2.5}s linear`;
@@ -50,10 +52,33 @@ function openAndCloseLiftDoors(lift) {
     doorRight.style.transform = `translateX(0px)`;
     setTimeout(() => {
       lift.classList.remove("busy");
-    }, 2500);
+      checkLiftCallQueue();
+    }, 2700);
   }, 2500);
 }
 
+function sortByNearbyFloor(liftArr, floor) {
+  const array = [...liftArr];
+  const nearbySortedLiftArray = array.sort(function (a) {
+    console.log(getAttribute("floor", a) - floor);
+    return getAttribute("floor", a) - floor;
+  });
+  console.log(nearbySortedLiftArray);
+  return;
+}
+
+//lift call queue
+function checkLiftCallQueue() {
+  if (liftCallQueue.length === 0) return;
+  const target = liftCallQueue[0];
+  const liftArray = document.querySelectorAll("#lift");
+  liftCallQueue.shift();
+  const { lift, sameFloor } = getLift(getAttribute("floor", target), liftArray);
+
+  moveLift(lift, sameFloor, target);
+}
+
+//move lift
 function moveLift(lift, sameFloor, target) {
   const nonAbsoluteValue =
     parseInt(getAttribute("index", target)) -
@@ -154,6 +179,15 @@ function getLift(floor, liftArr) {
   );
 
   const liftTwo = arr.find((element) => !element.classList.contains("busy"));
+  // let absValueArray = [];
+  // arr.forEach((element) => {
+  //   console.log("here");
+  //   if (!element.classList.contains("busy")) {
+  //     absValueArray.push(Math.abs(floor - element.attributes.floor.nodeValue));
+  //   }
+  // });
+  // console.log(absValueArray);
+  // const liftTwo = arr[absValueArray.indexOf(Math.min(...absValueArray))];
 
   let lift = liftOne === undefined ? liftTwo : liftOne;
   // console.log(lift);
@@ -182,6 +216,7 @@ function setAttribute(attr, element, value) {
   }
 }
 
+//adjusts overflow
 function adjustBuildingWidth(liftsCount) {
   if (window.innerWidth * 0.81 < liftsCount * 120) {
     building.style.width = `${(liftsCount + 1) * 120}px`;
