@@ -10,11 +10,25 @@
       integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="./css/index.css" />
     <title>lift simulator</title>
   </head>
   <body>
-    <div class="d-flex justify-content-center my-2">
+    <nav class="navbar justify-content-between  navbar-light">
+      <h3 class="heading" >Lift Simulator</h3>
+      <div id="container">
+        <div class="normal-text">Created by Vivek</div>
+        <a class="github-link px-1" href="https://github.com/vickydonor-99/lift-simulator" target="_blank"><span class="fa-brands fa-github px-2"></span>Source code</a>
+      </div>
+     
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        
+        </ul>
+      </div>
+    </nav>
+    <main class="d-flex justify-content-center my-2">
       <div class="col-10 lift__simulator mb-5">
         <div class="flex">
           <div class="col-md-3 mx-auto">
@@ -50,7 +64,8 @@
           class="lift__simulator__building"
         ></div>
       </div>
-    </div>
+    </main>
+    <!-- footer -->
     <script type="module" src="./js/index.js"></script>
   </body>
 </html>

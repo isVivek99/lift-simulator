@@ -21,7 +21,6 @@ building.addEventListener("click", function (event) {
 
     if (lift === undefined) {
       liftCallQueue.push(target);
-
       return;
     }
 

@@ -1,3 +1,10 @@
+:root {
+  --color-primary: #f8f9fa;
+  --color-secondary: rgb(77, 177, 226);
+  --color-tertiary: #0069d9;
+  --color-black: #000;
+  --color-white: #fff;
+}
 *,
 *::before,
 *::after {
@@ -14,13 +21,48 @@ body {
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+.navbar {
+  background-color: var(--color-tertiary);
+}
+.heading {
+  color: var(--color-white);
+  letter-spacing: 2px;
+}
+
+.github-link,
+link:visited {
+  color: var(--color-white);
+}
+
+.normal-text {
+  color: var(--color-white);
+  letter-spacing: 0.8px;
+}
+@media only screen and (max-width: 768px) {
+  .normal-text,
+  a {
+    font-size: 12px;
+  }
+  .heading {
+    font-size: 18px;
+  }
+}
+
+.footer {
+  position: fixed;
+  margin-top: 1rem;
+  padding: 2rem;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--color-tertiary);
+  color: var(--color-white);
+}
+
 .floor {
   border-bottom: 1px solid #000;
   height: 10rem;
   width: inherit;
-}
-
-.lift__simulator__form {
 }
 
 .lift__simulator {
@@ -34,7 +76,7 @@ body {
 .btn-success {
   padding: 0.5rem 1rem;
   margin: 0.5rem;
-  color: #fff;
+  color: var(--color-white);
   width: 5rem;
 }
 
@@ -46,23 +88,17 @@ body {
   position: absolute;
   bottom: 0;
   overflow: hidden;
-  border: 1px solid #000;
+  border: 2px solid var(--color-black);
 }
 .door__left {
-  border: 1px solid #000;
+  border: 1px solid var(--color-black);
   background-color: rgb(77, 177, 226);
   width: 50%;
   height: 100%;
-
-  /* transform: translate(0px);
-  transition: transform 0.5s linear; */
 }
 .door__right {
-  border: 1px solid #000;
-  background-color: rgb(77, 177, 226);
+  border: 1px solid var(--color-black);
+  background-color: var(--color-secondary);
   width: 50%;
   height: 100%;
-
-  /* transform: translate(0px);
-  transition: transform 0.5s linear; */
 }
