@@ -6,11 +6,11 @@ const liftCallQueue = [];
 //button click event listener
 let addingPixels = 0;
 let currentLift;
+
 building.addEventListener("click", function (event) {
   const target = event.target;
   if (target.classList.contains("btn")) {
     const liftArray = document.querySelectorAll("#lift");
-    // sortByNearbyFloor(liftArray, getAttribute("floor", target));
 
     const { lift, sameFloor } = getLift(
       getAttribute("floor", target),
@@ -18,7 +18,6 @@ building.addEventListener("click", function (event) {
     );
 
     //if no lift found then queue the lift calls
-
     if (lift === undefined) {
       liftCallQueue.push(target);
       return;
@@ -89,13 +88,15 @@ function openAndCloseLiftDoors(lift) {
   }, 2500);
 }
 
+//start
 function buildTheBuilding() {
   //clean the previous building
   building.innerHTML = "";
-  //start
+
   //get count of lifts and floors from the form
   const floorsCount = parseInt(document.getElementById("floor__number").value);
   const liftsCount = parseInt(document.getElementById("lift__number").value);
+  if (floorsCount === 0 || liftsCount === 0) return;
 
   adjustBuildingWidth(liftsCount);
 
