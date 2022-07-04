@@ -10,7 +10,7 @@ building.addEventListener("click", function (event) {
   const target = event.target;
   if (target.classList.contains("btn")) {
     const liftArray = document.querySelectorAll("#lift");
-    sortByNearbyFloor(liftArray, getAttribute("floor", target));
+    // sortByNearbyFloor(liftArray, getAttribute("floor", target));
 
     const { lift, sameFloor } = getLift(
       getAttribute("floor", target),
@@ -21,11 +21,10 @@ building.addEventListener("click", function (event) {
 
     if (lift === undefined) {
       liftCallQueue.push(target);
-      console.log(liftCallQueue);
+
       return;
     }
 
-    // console.log(lift, sameFloor);
     moveLift(lift, sameFloor, target);
   }
 });
@@ -35,37 +34,6 @@ form.addEventListener("submit", function (event) {
   event.preventDefault();
   buildTheBuilding();
 });
-
-//open nd close lift doors and mak lift idle
-function openAndCloseLiftDoors(lift) {
-  const doorLeft = lift.children[0];
-  const doorRight = lift.children[1];
-  doorLeft.style.transition = `transform ${2.5}s linear`;
-  doorLeft.style.transform = `translateX(-30px)`;
-  doorRight.style.transition = `transform ${2.5}s linear`;
-  doorRight.style.transform = `translateX(30px)`;
-
-  setTimeout(() => {
-    doorLeft.style.transition = `transform ${2.5}s linear`;
-    doorLeft.style.transform = `translateX(0px)`;
-    doorRight.style.transition = `transform ${2.5}s linear`;
-    doorRight.style.transform = `translateX(0px)`;
-    setTimeout(() => {
-      lift.classList.remove("busy");
-      checkLiftCallQueue();
-    }, 2700);
-  }, 2500);
-}
-
-function sortByNearbyFloor(liftArr, floor) {
-  const array = [...liftArr];
-  const nearbySortedLiftArray = array.sort(function (a) {
-    console.log(getAttribute("floor", a) - floor);
-    return getAttribute("floor", a) - floor;
-  });
-  console.log(nearbySortedLiftArray);
-  return;
-}
 
 //lift call queue
 function checkLiftCallQueue() {
@@ -86,6 +54,7 @@ function moveLift(lift, sameFloor, target) {
   const absoluteValue = Math.abs(nonAbsoluteValue);
 
   lift.classList.add("busy");
+  lift.attributes.busy.nodeValue = true;
   setTimeout(() => {
     setAttribute("floor", lift, getAttribute("index", target));
     openAndCloseLiftDoors(lift);
@@ -97,6 +66,28 @@ function moveLift(lift, sameFloor, target) {
     lift.style.transition = `transform ${Math.abs(absoluteValue) * 2}s linear`;
     lift.style.transform = `translateY(${`-${addingPixels}px`})`;
   }
+}
+
+//open nd close lift doors and mak lift idle
+function openAndCloseLiftDoors(lift) {
+  const doorLeft = lift.children[0];
+  const doorRight = lift.children[1];
+  doorLeft.style.transition = `transform ${2.5}s linear`;
+  doorLeft.style.transform = `translateX(-30px)`;
+  doorRight.style.transition = `transform ${2.5}s linear`;
+  doorRight.style.transform = `translateX(30px)`;
+
+  setTimeout(() => {
+    doorLeft.style.transition = `transform ${2.5}s linear`;
+    doorLeft.style.transform = `translateX(0px)`;
+    doorRight.style.transition = `transform ${2.5}s linear`;
+    doorRight.style.transform = `translateX(0px)`;
+    setTimeout(() => {
+      lift.classList.remove("busy");
+      lift.attributes.busy.nodeValue = false;
+      checkLiftCallQueue();
+    }, 2700);
+  }, 2500);
 }
 
 function buildTheBuilding() {
@@ -155,7 +146,7 @@ function buildLifts(count) {
 
   for (let i = 1; i <= count; i++) {
     lifts += `
-    <div class="lift lift_${i}" index="${i}" id="lift" floor="1" style="left:${
+    <div class="lift lift_${i}" index="${i}" id="lift" floor="1" busy="false" style="left:${
       120 * i
     }px">
     <div class="door door__left"></div>
@@ -170,7 +161,7 @@ function buildLifts(count) {
 
 //get lift
 function getLift(floor, liftArr) {
-  const arr = [...liftArr];
+  let arr = [...liftArr];
 
   const liftOne = arr.find(
     (element) =>
@@ -178,19 +169,35 @@ function getLift(floor, liftArr) {
       !element.classList.contains("busy")
   );
 
-  const liftTwo = arr.find((element) => !element.classList.contains("busy"));
-  // let absValueArray = [];
-  // arr.forEach((element) => {
-  //   console.log("here");
-  //   if (!element.classList.contains("busy")) {
-  //     absValueArray.push(Math.abs(floor - element.attributes.floor.nodeValue));
-  //   }
-  // });
-  // console.log(absValueArray);
-  // const liftTwo = arr[absValueArray.indexOf(Math.min(...absValueArray))];
+  // const liftTwo = arr.find((element) => !element.classList.contains("busy"));
+
+  let absValueArray = [];
+
+  arr.forEach((element) => {
+    absValueArray.push({
+      absValue: Math.abs(floor - parseInt(element.attributes.floor.nodeValue)),
+      liftNo: element.attributes.index.nodeValue,
+      busy: element.attributes.busy.nodeValue,
+    });
+  });
+
+  absValueArray = absValueArray.filter((ele) => !(ele.busy === "true"));
+
+  let low = {
+    absValue: absValueArray[0]?.absValue,
+    liftNo: absValueArray[0]?.liftNo,
+  };
+
+  for (let i = 0; i < absValueArray.length; i++) {
+    if (absValueArray[i].absValue < low.absValue) {
+      low.absValue = absValueArray[i].absValue;
+      low.liftNo = absValueArray[i].liftNo;
+    }
+  }
+
+  const liftTwo = arr[low.liftNo - 1];
 
   let lift = liftOne === undefined ? liftTwo : liftOne;
-  // console.log(lift);
 
   return {
     lift,
