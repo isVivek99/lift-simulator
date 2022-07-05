@@ -2,6 +2,7 @@ const form = document.getElementById("lift__simulator__form");
 const building = document.getElementById("lift__simulator__building");
 const floorArray = [];
 const liftCallQueue = [];
+let liftFloorMaintainerObject = {};
 
 //button click event listener
 let addingPixels = 0;
@@ -10,20 +11,23 @@ let currentLift;
 building.addEventListener("click", function (event) {
   const target = event.target;
   if (target.classList.contains("btn")) {
-    const liftArray = document.querySelectorAll("#lift");
+    const liftArray = document.querySelectorAll(".lift");
 
-    const { lift, sameFloor } = getLift(
-      getAttribute("floor", target),
-      liftArray
-    );
+    const floor = getAttribute("floor", target);
+    const { lift, sameFloor } = getLift(floor, liftArray);
 
-    //if no lift found then queue the lift calls
+    if (lift && !sameFloor && getLiftFloorStatus(getAttribute("floor", lift))) {
+      delete liftFloorMaintainerObject[getAttribute("floor", lift)];
+      console.log(liftFloorMaintainerObject);
+    }
+    //if no lift found then; queue the lift calls
     if (lift === undefined) {
       liftCallQueue.push(target);
       return;
     }
 
-    moveLift(lift, sameFloor, target);
+    if (!checkLiftFloorMaintainanceArray(floor))
+      moveLift(lift, sameFloor, target);
   }
 });
 
@@ -32,6 +36,36 @@ form.addEventListener("submit", function (event) {
   event.preventDefault();
   buildTheBuilding();
 });
+
+//assign lift to a floor {floor:lift}
+function setLiftFloorMaintainanceArray(floor, lift) {
+  let obj = {};
+  const key = floor;
+  const value = lift.attributes.index.nodeValue;
+  obj[key] = value;
+  liftFloorMaintainerObject = { ...liftFloorMaintainerObject, ...obj };
+  console.log(
+    liftFloorMaintainerObject,
+    liftFloorMaintainerObject[floor] !== undefined
+  );
+}
+
+function getLiftFloorStatus(floor) {
+  return liftFloorMaintainerObject[floor] !== undefined;
+}
+
+//check if the floor already has a lift present
+function checkLiftFloorMaintainanceArray(floor) {
+  const liftNo = liftFloorMaintainerObject[floor];
+
+  if (liftNo) {
+    const lift = document.getElementById(`lift_${liftNo}`);
+    const target = document.getElementById(`btn__up__${floor}`);
+
+    moveLift(lift, true, target);
+  }
+  return liftFloorMaintainerObject[floor] !== undefined;
+}
 
 //lift call queue
 function checkLiftCallQueue() {
@@ -46,9 +80,9 @@ function checkLiftCallQueue() {
 
 //move lift
 function moveLift(lift, sameFloor, target) {
+  setLiftFloorMaintainanceArray(getAttribute("floor", target), lift);
   const nonAbsoluteValue =
-    parseInt(getAttribute("index", target)) -
-    parseInt(getAttribute("floor", lift));
+    getAttribute("index", target) - getAttribute("floor", lift);
   const absoluteValue = Math.abs(nonAbsoluteValue);
 
   lift.classList.add("busy");
@@ -66,7 +100,7 @@ function moveLift(lift, sameFloor, target) {
   }
 }
 
-//open nd close lift doors and mak lift idle
+//open and close lift doors and make lift idle
 function openAndCloseLiftDoors(lift) {
   const doorLeft = lift.children[0];
   const doorRight = lift.children[1];
@@ -104,7 +138,7 @@ function buildTheBuilding() {
   const floors = buildFloors(floorsCount);
   const lifts = buildLifts(liftsCount);
 
-  //ppend floors and lifts
+  //append floors and lifts
   building.appendChild(floors);
   building.appendChild(lifts);
 
@@ -146,7 +180,7 @@ function buildLifts(count) {
 
   for (let i = 1; i <= count; i++) {
     lifts += `
-    <div class="lift lift_${i}" index="${i}" id="lift" floor="1" busy="false" style="left:${
+    <div class="lift lift_${i}" id="lift_${1}" index="${i}" id="lift" floor="1" busy="false" style="left:${
       120 * i
     }px">
     <div class="door door__left"></div>
